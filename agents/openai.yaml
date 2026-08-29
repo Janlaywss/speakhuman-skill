@@ -1,0 +1,4 @@
+interface:
+  display_name: "中文工作写作：说人话"
+  short_description: "让汇报和方案更自然、具体、专业，少一点生硬的 AI 腔"
+  default_prompt: "使用 $plain-chinese-workwriting，把这段工作内容改成自然、具体、可直接使用的中文。"
