@@ -1,0 +1,1349 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="plain-chinese-workwriting 是一套面向中文工作沟通的 Codex 技能，帮助你把汇报、方案、复盘和日常消息写得自然、具体、可直接使用。"
+    />
+    <meta name="theme-color" content="#f3efe6" />
+    <title>中文工作写作：说人话</title>
+    <script>
+      (() => {
+        let savedTheme = null;
+        try {
+          savedTheme = localStorage.getItem("pcw-theme");
+        } catch {
+          // Some browsers restrict local storage when opening a local HTML file.
+        }
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.dataset.theme = savedTheme || (prefersDark ? "dark" : "light");
+      })();
+    </script>
+    <style>
+      :root {
+        color-scheme: light;
+        --paper: #f3efe6;
+        --paper-strong: #fffdf7;
+        --ink: #18312d;
+        --ink-soft: #4f625e;
+        --accent: #db5d46;
+        --accent-dark: #a94131;
+        --sage: #bac7a4;
+        --sage-soft: #e6eadb;
+        --line: rgba(24, 49, 45, 0.16);
+        --line-strong: rgba(24, 49, 45, 0.28);
+        --shadow: 0 24px 70px rgba(31, 45, 40, 0.11);
+        --shadow-soft: 0 12px 35px rgba(31, 45, 40, 0.08);
+        --radius-lg: 32px;
+        --radius-md: 20px;
+        --radius-sm: 12px;
+        --max-width: 1160px;
+      }
+
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --paper: #17211f;
+        --paper-strong: #202d2a;
+        --ink: #f4f0e7;
+        --ink-soft: #b9c5c1;
+        --accent: #f07860;
+        --accent-dark: #ff9a84;
+        --sage: #9caf7d;
+        --sage-soft: #2b3b34;
+        --line: rgba(244, 240, 231, 0.14);
+        --line-strong: rgba(244, 240, 231, 0.24);
+        --shadow: 0 24px 70px rgba(0, 0, 0, 0.26);
+        --shadow-soft: 0 12px 35px rgba(0, 0, 0, 0.18);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 90% 8%, rgba(186, 199, 164, 0.28), transparent 23rem),
+          radial-gradient(circle at 4% 28%, rgba(219, 93, 70, 0.08), transparent 24rem),
+          var(--paper);
+        color: var(--ink);
+        font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+        font-size: 16px;
+        line-height: 1.7;
+        transition: background-color 180ms ease, color 180ms ease;
+      }
+
+      button,
+      a {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      ::selection {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .skip-link {
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        z-index: 100;
+        padding: 10px 14px;
+        border-radius: 8px;
+        background: var(--ink);
+        color: var(--paper);
+        transform: translateY(-160%);
+        transition: transform 160ms ease;
+      }
+
+      .skip-link:focus {
+        transform: translateY(0);
+      }
+
+      .shell {
+        width: min(calc(100% - 40px), var(--max-width));
+        margin-inline: auto;
+      }
+
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        border-bottom: 1px solid transparent;
+        background: color-mix(in srgb, var(--paper) 88%, transparent);
+        backdrop-filter: blur(16px);
+        transition: border-color 180ms ease;
+      }
+
+      .site-header.is-scrolled {
+        border-color: var(--line);
+      }
+
+      .nav {
+        min-height: 74px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 28px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 11px;
+        color: var(--ink);
+        text-decoration: none;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .brand-mark {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        border-radius: 10px 10px 10px 2px;
+        background: var(--ink);
+        color: var(--paper-strong);
+        font-family: Georgia, "Songti SC", serif;
+        font-size: 20px;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        margin-left: auto;
+      }
+
+      .nav-links a {
+        color: var(--ink-soft);
+        font-size: 14px;
+        text-decoration: none;
+        transition: color 160ms ease;
+      }
+
+      .nav-links a:hover,
+      .nav-links a:focus-visible {
+        color: var(--ink);
+      }
+
+      .theme-toggle {
+        min-width: 82px;
+        padding: 8px 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--paper-strong);
+        color: var(--ink);
+        cursor: pointer;
+        font-size: 13px;
+        transition: border-color 160ms ease, transform 160ms ease;
+      }
+
+      .theme-toggle:hover {
+        border-color: var(--line-strong);
+        transform: translateY(-1px);
+      }
+
+      .hero {
+        min-height: calc(100vh - 74px);
+        padding: 82px 0 92px;
+        display: grid;
+        grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.92fr);
+        align-items: center;
+        gap: clamp(48px, 7vw, 100px);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 20px;
+        color: var(--accent-dark);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow::before {
+        width: 26px;
+        height: 2px;
+        content: "";
+        background: var(--accent);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1,
+      h2 {
+        font-family: "Songti SC", "STSong", Georgia, serif;
+        font-weight: 700;
+        text-wrap: balance;
+      }
+
+      h1 {
+        max-width: 720px;
+        margin-bottom: 24px;
+        font-size: clamp(54px, 7.7vw, 94px);
+        line-height: 0.98;
+        letter-spacing: -0.07em;
+      }
+
+      h1 .accent-word {
+        position: relative;
+        color: var(--accent);
+        white-space: nowrap;
+      }
+
+      h1 .accent-word::after {
+        position: absolute;
+        right: 0;
+        bottom: -9px;
+        left: 0;
+        height: 5px;
+        border-radius: 999px;
+        background: var(--accent);
+        content: "";
+        transform: rotate(-1.4deg);
+      }
+
+      .hero-intro {
+        max-width: 640px;
+        margin-bottom: 34px;
+        color: var(--ink-soft);
+        font-size: clamp(17px, 2vw, 20px);
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .button {
+        display: inline-flex;
+        min-height: 50px;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 12px 20px;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 700;
+        transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+      }
+
+      .button:hover {
+        transform: translateY(-2px);
+      }
+
+      .button-primary {
+        background: var(--ink);
+        color: var(--paper-strong);
+        box-shadow: 0 10px 26px rgba(24, 49, 45, 0.18);
+      }
+
+      .button-secondary {
+        border-color: var(--line-strong);
+        background: transparent;
+        color: var(--ink);
+      }
+
+      .hero-note {
+        margin: 26px 0 0;
+        color: var(--ink-soft);
+        font-size: 13px;
+      }
+
+      .editor-card {
+        position: relative;
+        padding: clamp(28px, 4vw, 46px);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) 8px;
+        background:
+          linear-gradient(var(--line) 1px, transparent 1px) 0 71px / 100% 40px,
+          var(--paper-strong);
+        box-shadow: var(--shadow);
+        transform: rotate(1.25deg);
+      }
+
+      .editor-card::before {
+        position: absolute;
+        top: 18px;
+        right: 22px;
+        width: 54px;
+        height: 18px;
+        border-radius: 2px;
+        background: color-mix(in srgb, var(--sage) 54%, transparent);
+        content: "";
+        transform: rotate(3deg);
+      }
+
+      .editor-label {
+        margin-bottom: 38px;
+        color: var(--ink-soft);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .edit-block {
+        position: relative;
+        padding-left: 24px;
+      }
+
+      .edit-block::before {
+        position: absolute;
+        top: 7px;
+        bottom: 6px;
+        left: 0;
+        width: 3px;
+        border-radius: 999px;
+        background: var(--accent);
+        content: "";
+      }
+
+      .draft {
+        margin-bottom: 24px;
+        color: var(--ink-soft);
+        font-size: 16px;
+        text-decoration-color: var(--accent);
+        text-decoration-line: line-through;
+        text-decoration-thickness: 2px;
+      }
+
+      .revision {
+        margin-bottom: 14px;
+        font-family: "Songti SC", "STSong", Georgia, serif;
+        font-size: clamp(22px, 2.5vw, 29px);
+        font-weight: 700;
+        line-height: 1.55;
+      }
+
+      .revision-note {
+        margin: 0;
+        color: var(--accent-dark);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .facts-strip {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        margin-bottom: 128px;
+        border-top: 1px solid var(--line-strong);
+        border-bottom: 1px solid var(--line-strong);
+      }
+
+      .fact {
+        padding: 25px 30px;
+        text-align: center;
+      }
+
+      .fact + .fact {
+        border-left: 1px solid var(--line-strong);
+      }
+
+      .fact strong {
+        display: block;
+        margin-bottom: 3px;
+        font-family: Georgia, "Songti SC", serif;
+        font-size: 30px;
+        line-height: 1.2;
+      }
+
+      .fact span {
+        color: var(--ink-soft);
+        font-size: 13px;
+      }
+
+      section {
+        scroll-margin-top: 96px;
+      }
+
+      .section-heading {
+        display: grid;
+        grid-template-columns: minmax(0, 0.82fr) minmax(300px, 0.55fr);
+        justify-content: space-between;
+        gap: 48px;
+        align-items: end;
+        margin-bottom: 52px;
+      }
+
+      .section-heading h2 {
+        max-width: 730px;
+        margin-bottom: 0;
+        font-size: clamp(38px, 5vw, 64px);
+        line-height: 1.08;
+        letter-spacing: -0.05em;
+      }
+
+      .section-heading p:last-child {
+        margin-bottom: 4px;
+        color: var(--ink-soft);
+      }
+
+      .principles {
+        padding-bottom: 140px;
+      }
+
+      .principle-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 18px;
+      }
+
+      .principle-card {
+        position: relative;
+        min-height: 270px;
+        padding: 28px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: color-mix(in srgb, var(--paper-strong) 76%, transparent);
+        box-shadow: var(--shadow-soft);
+      }
+
+      .principle-card:nth-child(1),
+      .principle-card:nth-child(4) {
+        grid-column: span 7;
+      }
+
+      .principle-card:nth-child(2),
+      .principle-card:nth-child(3) {
+        grid-column: span 5;
+      }
+
+      .principle-card.accent-card {
+        background: var(--ink);
+        color: var(--paper-strong);
+      }
+
+      .card-number {
+        display: inline-grid;
+        width: 36px;
+        height: 36px;
+        place-items: center;
+        margin-bottom: 46px;
+        border: 1px solid currentColor;
+        border-radius: 50%;
+        font-family: Georgia, serif;
+        font-size: 13px;
+        opacity: 0.6;
+      }
+
+      .principle-card h3 {
+        max-width: 460px;
+        margin-bottom: 12px;
+        font-family: "Songti SC", "STSong", Georgia, serif;
+        font-size: clamp(25px, 2.4vw, 34px);
+        line-height: 1.25;
+      }
+
+      .principle-card p {
+        max-width: 560px;
+        margin-bottom: 0;
+        color: var(--ink-soft);
+      }
+
+      .principle-card.accent-card p {
+        color: color-mix(in srgb, var(--paper-strong) 72%, transparent);
+      }
+
+      .examples-section {
+        padding: 110px 0;
+        background: var(--ink);
+        color: var(--paper-strong);
+      }
+
+      .examples-section .eyebrow {
+        color: #ff9b85;
+      }
+
+      .examples-section .section-heading p:last-child {
+        color: color-mix(in srgb, var(--paper-strong) 68%, transparent);
+      }
+
+      .example-tabs {
+        display: inline-flex;
+        gap: 6px;
+        margin-bottom: 24px;
+        padding: 5px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .example-tab {
+        padding: 8px 16px;
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.65);
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .example-tab[aria-selected="true"] {
+        background: var(--paper-strong);
+        color: var(--ink);
+      }
+
+      .example-stage {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .example-panel {
+        min-height: 330px;
+        padding: clamp(28px, 4vw, 44px);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: var(--radius-md);
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .example-panel.after {
+        border-color: transparent;
+        background: var(--paper-strong);
+        color: var(--ink);
+      }
+
+      .example-kicker {
+        margin-bottom: 54px;
+        color: rgba(255, 255, 255, 0.56);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+      }
+
+      .after .example-kicker {
+        color: var(--accent-dark);
+      }
+
+      .example-copy {
+        margin-bottom: 32px;
+        font-family: "Songti SC", "STSong", Georgia, serif;
+        font-size: clamp(24px, 3vw, 36px);
+        line-height: 1.55;
+      }
+
+      .before .example-copy {
+        color: rgba(255, 255, 255, 0.73);
+      }
+
+      .example-reason {
+        display: inline-block;
+        margin: 0;
+        padding: 6px 11px;
+        border-radius: 999px;
+        background: var(--sage-soft);
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .workflow {
+        padding: 140px 0;
+      }
+
+      .workflow-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 0.78fr) minmax(380px, 1.22fr);
+        gap: clamp(54px, 9vw, 120px);
+        align-items: start;
+      }
+
+      .workflow-copy {
+        position: sticky;
+        top: 120px;
+      }
+
+      .workflow h2 {
+        margin-bottom: 24px;
+        font-size: clamp(40px, 5vw, 66px);
+        line-height: 1.08;
+        letter-spacing: -0.05em;
+      }
+
+      .workflow-copy > p:last-child {
+        color: var(--ink-soft);
+      }
+
+      .workflow-steps {
+        border-top: 1px solid var(--line-strong);
+      }
+
+      .workflow-step {
+        display: grid;
+        grid-template-columns: 46px 1fr;
+        gap: 22px;
+        padding: 31px 0;
+        border-bottom: 1px solid var(--line-strong);
+      }
+
+      .step-index {
+        color: var(--accent-dark);
+        font-family: Georgia, serif;
+        font-size: 14px;
+      }
+
+      .workflow-step h3 {
+        margin-bottom: 8px;
+        font-size: 20px;
+      }
+
+      .workflow-step p {
+        margin-bottom: 0;
+        color: var(--ink-soft);
+      }
+
+      .structure {
+        padding: 110px 0;
+        background: var(--sage-soft);
+      }
+
+      .structure-layout {
+        display: grid;
+        grid-template-columns: minmax(300px, 0.8fr) minmax(440px, 1.2fr);
+        gap: clamp(48px, 8vw, 100px);
+        align-items: center;
+      }
+
+      .structure h2 {
+        margin-bottom: 22px;
+        font-size: clamp(40px, 5vw, 64px);
+        line-height: 1.08;
+        letter-spacing: -0.05em;
+      }
+
+      .structure-copy > p:last-child {
+        color: var(--ink-soft);
+      }
+
+      .file-tree {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: var(--paper-strong);
+        box-shadow: var(--shadow-soft);
+      }
+
+      .file-row {
+        display: grid;
+        grid-template-columns: 42px minmax(0, 1fr);
+        gap: 14px;
+        padding: 18px;
+        border-radius: 14px;
+      }
+
+      .file-row + .file-row {
+        margin-top: 5px;
+      }
+
+      .file-row:first-child {
+        background: var(--ink);
+        color: var(--paper-strong);
+      }
+
+      .file-icon {
+        display: grid;
+        width: 38px;
+        height: 38px;
+        place-items: center;
+        border: 1px solid var(--line-strong);
+        border-radius: 10px;
+        font-family: Georgia, serif;
+        font-size: 12px;
+      }
+
+      .file-row:first-child .file-icon {
+        border-color: rgba(255, 255, 255, 0.28);
+      }
+
+      .file-row code {
+        display: block;
+        overflow: hidden;
+        margin-bottom: 3px;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 13px;
+        font-weight: 700;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .file-row small {
+        color: var(--ink-soft);
+      }
+
+      .file-row:first-child small {
+        color: rgba(255, 255, 255, 0.64);
+      }
+
+      .use-section {
+        padding: 140px 0 100px;
+      }
+
+      .prompt-card {
+        position: relative;
+        overflow: hidden;
+        padding: clamp(34px, 6vw, 74px);
+        border-radius: var(--radius-lg);
+        background: var(--accent);
+        color: #fff;
+        box-shadow: var(--shadow);
+      }
+
+      .prompt-card::after {
+        position: absolute;
+        right: -70px;
+        bottom: -90px;
+        width: 260px;
+        height: 260px;
+        border: 48px solid rgba(255, 255, 255, 0.11);
+        border-radius: 50%;
+        content: "";
+      }
+
+      .prompt-card h2 {
+        max-width: 780px;
+        margin-bottom: 22px;
+        font-size: clamp(40px, 6vw, 72px);
+        line-height: 1.08;
+        letter-spacing: -0.05em;
+      }
+
+      .prompt-card > p {
+        max-width: 650px;
+        margin-bottom: 35px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 17px;
+      }
+
+      .prompt-box {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 20px;
+        align-items: center;
+        padding: 20px 20px 20px 24px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 18px;
+        background: rgba(50, 27, 21, 0.2);
+        backdrop-filter: blur(10px);
+      }
+
+      .prompt-box code {
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      .copy-button {
+        min-width: 96px;
+        padding: 10px 15px;
+        border: 0;
+        border-radius: 999px;
+        background: #fff;
+        color: #633226;
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .copy-status {
+        min-height: 24px;
+        margin: 12px 0 0;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 13px;
+      }
+
+      .site-footer {
+        padding: 0 0 40px;
+      }
+
+      .footer-inner {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        padding-top: 28px;
+        border-top: 1px solid var(--line-strong);
+        color: var(--ink-soft);
+        font-size: 13px;
+      }
+
+      .footer-inner p {
+        margin: 0;
+      }
+
+      :focus-visible {
+        outline: 3px solid color-mix(in srgb, var(--accent) 64%, transparent);
+        outline-offset: 4px;
+      }
+
+      [data-reveal] {
+        opacity: 0;
+        transform: translateY(18px);
+        transition: opacity 520ms ease, transform 520ms ease;
+      }
+
+      [data-reveal].is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (max-width: 900px) {
+        .hero {
+          min-height: auto;
+          grid-template-columns: 1fr;
+          padding-top: 62px;
+        }
+
+        .editor-card {
+          width: min(620px, 100%);
+          justify-self: center;
+          transform: rotate(0.6deg);
+        }
+
+        .section-heading,
+        .workflow-grid,
+        .structure-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .principle-card:nth-child(n) {
+          grid-column: span 6;
+        }
+
+        .workflow-copy {
+          position: static;
+        }
+      }
+
+      @media (max-width: 680px) {
+        .shell {
+          width: min(calc(100% - 28px), var(--max-width));
+        }
+
+        .nav {
+          min-height: 66px;
+        }
+
+        .brand-text {
+          display: none;
+        }
+
+        .nav-links {
+          gap: 16px;
+        }
+
+        .nav-links a:nth-child(2) {
+          display: none;
+        }
+
+        .theme-toggle {
+          min-width: auto;
+          padding-inline: 11px;
+        }
+
+        .hero {
+          padding: 54px 0 72px;
+          gap: 52px;
+        }
+
+        h1 {
+          font-size: clamp(48px, 16vw, 68px);
+        }
+
+        .hero-actions .button {
+          width: 100%;
+        }
+
+        .facts-strip {
+          grid-template-columns: 1fr;
+          margin-bottom: 92px;
+        }
+
+        .fact + .fact {
+          border-top: 1px solid var(--line-strong);
+          border-left: 0;
+        }
+
+        .section-heading {
+          gap: 22px;
+          margin-bottom: 36px;
+        }
+
+        .principles,
+        .workflow {
+          padding-bottom: 96px;
+        }
+
+        .principle-grid,
+        .example-stage {
+          grid-template-columns: 1fr;
+        }
+
+        .principle-card:nth-child(n) {
+          grid-column: auto;
+          min-height: 250px;
+        }
+
+        .examples-section,
+        .structure {
+          padding: 82px 0;
+        }
+
+        .example-tabs {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          width: 100%;
+        }
+
+        .example-tab {
+          padding-inline: 8px;
+        }
+
+        .example-panel {
+          min-height: 280px;
+        }
+
+        .prompt-box {
+          grid-template-columns: 1fr;
+        }
+
+        .copy-button {
+          width: 100%;
+        }
+
+        .footer-inner {
+          flex-direction: column;
+          gap: 6px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+        }
+
+        [data-reveal] {
+          opacity: 1;
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到正文</a>
+
+    <header class="site-header" id="site-header">
+      <nav class="nav shell" aria-label="主导航">
+        <a class="brand" href="#top" aria-label="返回顶部">
+          <span class="brand-mark" aria-hidden="true">说</span>
+          <span class="brand-text">中文工作写作</span>
+        </a>
+        <div class="nav-links">
+          <a href="#principles">原则</a>
+          <a href="#examples">示例</a>
+          <a href="#use">调用方式</a>
+        </div>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="切换深色或浅色主题">
+          <span id="theme-label">深色</span>
+        </button>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero shell" id="top">
+        <div class="hero-copy" data-reveal>
+          <p class="eyebrow">plain-chinese-workwriting</p>
+          <h1>让工作中文，<span class="accent-word">像人写的。</span></h1>
+          <p class="hero-intro">
+            一套给 Codex 使用的中文写作技能。它帮你起草、改写和审校汇报、方案、复盘与日常沟通：把意思写具体，把句子写自然，把格式留给真正需要它的地方。
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#examples">看看改写效果 <span aria-hidden="true">↓</span></a>
+            <a class="button button-secondary" href="#use">直接调用</a>
+          </div>
+          <p class="hero-note">不是把话写得更漂亮，而是把事实、动作和判断写清楚。</p>
+        </div>
+
+        <aside class="editor-card" aria-label="改写示例" data-reveal>
+          <p class="editor-label">Revision / 01</p>
+          <div class="edit-block">
+            <p class="draft">团队对本次故障进行了全面复盘，并积极推动后续优化措施落地。</p>
+            <p class="revision">团队复盘后找到了两个原因，并确定了负责人和完成时间。</p>
+            <p class="revision-note">少一点姿态，多一点事实。</p>
+          </div>
+        </aside>
+      </section>
+
+      <div class="facts-strip shell" aria-label="项目概览" data-reveal>
+        <div class="fact">
+          <strong>3</strong>
+          <span>份写作指南</span>
+        </div>
+        <div class="fact">
+          <strong>2</strong>
+          <span>类写作路径</span>
+        </div>
+        <div class="fact">
+          <strong>1</strong>
+          <span>条核心标准：可直接使用</span>
+        </div>
+      </div>
+
+      <section class="principles shell" id="principles">
+        <div class="section-heading" data-reveal>
+          <div>
+            <p class="eyebrow">它在意什么</p>
+            <h2>自然不是随便，专业也不必生硬。</h2>
+          </div>
+          <p>这套规则不追求统一腔调。它先看读者、场景和事实，再决定一句话该有多直接、一份材料该有多少结构。</p>
+        </div>
+
+        <div class="principle-grid">
+          <article class="principle-card accent-card" data-reveal>
+            <span class="card-number">01</span>
+            <h3>温和，但直接</h3>
+            <p>不靠客套掩饰问题，也不以直率之名放弃善意。结论先说清楚，异议用事实和推理支撑。</p>
+          </article>
+          <article class="principle-card" data-reveal>
+            <span class="card-number">02</span>
+            <h3>让动词做事</h3>
+            <p>少写“开展讨论”和“进行分析”，能写“讨论”和“分析”，就让动作直接发生。</p>
+          </article>
+          <article class="principle-card" data-reveal>
+            <span class="card-number">03</span>
+            <h3>把抽象落到事实</h3>
+            <p>“提升稳定性”不如“把每周故障次数降到两次以内”。看得见的变化才容易执行。</p>
+          </article>
+          <article class="principle-card accent-card" data-reveal>
+            <span class="card-number">04</span>
+            <h3>格式服务于阅读</h3>
+            <p>自然段、列表、标题各有用途。信息需要扫读时再加结构，不用层层排版掩盖含糊的表达。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="examples-section" id="examples">
+        <div class="shell">
+          <div class="section-heading" data-reveal>
+            <div>
+              <p class="eyebrow">改写现场</p>
+              <h2>不是换几个词，是重新找回句子的主干。</h2>
+            </div>
+            <p>选择一个场景，看看它怎样删掉空架子、恢复具体动作，同时保留原来的事实和承诺强度。</p>
+          </div>
+
+          <div class="example-tabs" role="tablist" aria-label="改写场景" data-reveal>
+            <button class="example-tab" type="button" role="tab" aria-selected="true" data-case="message">工作消息</button>
+            <button class="example-tab" type="button" role="tab" aria-selected="false" data-case="plan">方案说明</button>
+            <button class="example-tab" type="button" role="tab" aria-selected="false" data-case="review">故障复盘</button>
+          </div>
+
+          <div class="example-stage" aria-live="polite" data-reveal>
+            <article class="example-panel before">
+              <p class="example-kicker">改写前</p>
+              <p class="example-copy" id="before-copy">关于交付延期的问题，我们已经进行了内部复盘，并将积极推动后续改进措施的落地。</p>
+            </article>
+            <article class="example-panel after">
+              <p class="example-kicker">改写后</p>
+              <p class="example-copy" id="after-copy">我们复盘了延期原因：接口确认晚了两天，联调时间不够。下次会在开发前锁定接口，并由张宁负责检查。</p>
+              <p class="example-reason" id="example-reason">删掉空架子，补上事实和责任人</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="workflow shell">
+        <div class="workflow-grid">
+          <div class="workflow-copy" data-reveal>
+            <p class="eyebrow">它怎么工作</p>
+            <h2>先理解，再动笔。</h2>
+            <p>它不会机械删掉“的”“被”或“关于”。每次修改都要回答一个问题：改完以后，信息是否更准确、更自然、更容易行动？</p>
+          </div>
+
+          <div class="workflow-steps">
+            <article class="workflow-step" data-reveal>
+              <span class="step-index">01</span>
+              <div>
+                <h3>提取事实</h3>
+                <p>先找出人物、动作、对象、时间、条件和结果，不被原句词序牵着走。</p>
+              </div>
+            </article>
+            <article class="workflow-step" data-reveal>
+              <span class="step-index">02</span>
+              <div>
+                <h3>写出主干</h3>
+                <p>优先写清谁做什么、发生了什么变化，再补必要的限定和背景。</p>
+              </div>
+            </article>
+            <article class="workflow-step" data-reveal>
+              <span class="step-index">03</span>
+              <div>
+                <h3>校准语气</h3>
+                <p>按读者和场景决定表达强度。专家需要简练，敏感沟通需要给情绪留一点空间。</p>
+              </div>
+            </article>
+            <article class="workflow-step" data-reveal>
+              <span class="step-index">04</span>
+              <div>
+                <h3>核对边界</h3>
+                <p>确认事实、范围、术语和承诺强度没有改变，再检查格式与来源能否复核。</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="structure">
+        <div class="structure-layout shell">
+          <div class="structure-copy" data-reveal>
+            <p class="eyebrow">项目结构</p>
+            <h2>一份入口，三份指南。</h2>
+            <p><code>SKILL.md</code> 负责判断该读哪些规则：日常沟通读取风格与句法；正式文档再加入格式规范。用户、组织或平台已有要求时，以那些要求为先。</p>
+          </div>
+
+          <div class="file-tree" aria-label="项目文件结构" data-reveal>
+            <div class="file-row">
+              <span class="file-icon" aria-hidden="true">01</span>
+              <div>
+                <code>SKILL.md</code>
+                <small>定义能力入口与规则路由</small>
+              </div>
+            </div>
+            <div class="file-row">
+              <span class="file-icon" aria-hidden="true">02</span>
+              <div>
+                <code>communication-style-guide.md</code>
+                <small>语气、结构、校准与沟通原则</small>
+              </div>
+            </div>
+            <div class="file-row">
+              <span class="file-icon" aria-hidden="true">03</span>
+              <div>
+                <code>natural-chinese-syntax-guide.md</code>
+                <small>自然中文句法与改写步骤</small>
+              </div>
+            </div>
+            <div class="file-row">
+              <span class="file-icon" aria-hidden="true">04</span>
+              <div>
+                <code>chinese-document-conventions.md</code>
+                <small>正式文档的标题、标点与格式</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="use-section shell" id="use">
+        <div class="prompt-card" data-reveal>
+          <h2>把原文交给它，剩下的说人话。</h2>
+          <p>在 Codex 中点名调用这项技能，再贴上需要处理的内容。你也可以补充读者、场景和希望保留的语气。</p>
+          <div class="prompt-box">
+            <code id="prompt-text">使用 $plain-chinese-workwriting，把这段工作内容改成自然、具体、可直接使用的中文。</code>
+            <button class="copy-button" id="copy-button" type="button">复制提示词</button>
+          </div>
+          <p class="copy-status" id="copy-status" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer shell">
+      <div class="footer-inner">
+        <p>plain-chinese-workwriting</p>
+        <p>少一点 AI 腔，多一点可直接使用的中文。</p>
+      </div>
+    </footer>
+
+    <script>
+      const examples = {
+        message: {
+          before: "关于交付延期的问题，我们已经进行了内部复盘，并将积极推动后续改进措施的落地。",
+          after: "我们复盘了延期原因：接口确认晚了两天，联调时间不够。下次会在开发前锁定接口，并由张宁负责检查。",
+          reason: "删掉空架子，补上事实和责任人",
+        },
+        plan: {
+          before: "本方案旨在通过建立跨部门协同机制，实现项目执行效率的有效提升。",
+          after: "产品、设计和研发每周三一起确认范围、风险和负责人，减少反复确认。",
+          reason: "用具体动作替代抽象名词",
+        },
+        review: {
+          before: "由于监控告警存在不及时的情况，从而导致了问题未能被及时发现。",
+          after: "监控晚了 18 分钟才告警，值班同事因此没能及时发现问题。",
+          reason: "因果只写一遍，用数字说明影响",
+        },
+      };
+
+      const root = document.documentElement;
+      const themeToggle = document.querySelector("#theme-toggle");
+      const themeLabel = document.querySelector("#theme-label");
+
+      const updateThemeLabel = () => {
+        const isDark = root.dataset.theme === "dark";
+        themeLabel.textContent = isDark ? "浅色" : "深色";
+        themeToggle.setAttribute("aria-pressed", String(isDark));
+      };
+
+      updateThemeLabel();
+
+      themeToggle.addEventListener("click", () => {
+        root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
+        try {
+          localStorage.setItem("pcw-theme", root.dataset.theme);
+        } catch {
+          // Theme switching still works for the current page when storage is unavailable.
+        }
+        updateThemeLabel();
+      });
+
+      document.querySelectorAll(".example-tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          const selected = examples[tab.dataset.case];
+          document.querySelectorAll(".example-tab").forEach((item) => {
+            item.setAttribute("aria-selected", String(item === tab));
+          });
+          document.querySelector("#before-copy").textContent = selected.before;
+          document.querySelector("#after-copy").textContent = selected.after;
+          document.querySelector("#example-reason").textContent = selected.reason;
+        });
+      });
+
+      const copyButton = document.querySelector("#copy-button");
+      const copyStatus = document.querySelector("#copy-status");
+
+      const copyWithSelection = (text) => {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.setAttribute("readonly", "");
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        document.body.append(textArea);
+        textArea.select();
+        const copied = document.execCommand("copy");
+        textArea.remove();
+        if (!copied) throw new Error("Copy command failed");
+      };
+
+      copyButton.addEventListener("click", async () => {
+        const prompt = document.querySelector("#prompt-text").textContent;
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(prompt);
+          } else {
+            copyWithSelection(prompt);
+          }
+          copyButton.textContent = "已复制";
+          copyStatus.textContent = "提示词已复制到剪贴板。";
+          window.setTimeout(() => {
+            copyButton.textContent = "复制提示词";
+            copyStatus.textContent = "";
+          }, 2200);
+        } catch {
+          copyStatus.textContent = "复制失败，请手动选择提示词。";
+        }
+      });
+
+      const header = document.querySelector("#site-header");
+      const syncHeader = () => header.classList.toggle("is-scrolled", window.scrollY > 8);
+      syncHeader();
+      window.addEventListener("scroll", syncHeader, { passive: true });
+
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const revealItems = document.querySelectorAll("[data-reveal]");
+
+      if (reducedMotion || !("IntersectionObserver" in window)) {
+        revealItems.forEach((item) => item.classList.add("is-visible"));
+      } else {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.12 },
+        );
+        revealItems.forEach((item) => observer.observe(item));
+      }
+    </script>
+  </body>
+</html>
